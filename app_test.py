@@ -41,7 +41,7 @@ def save_session_to_blob(session_state):
     return filename
 
 # ---- OpenAI Config ----
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+# os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 ROLE_CLARITY_QUESTION_BANK = [
     "Can you describe your primary responsibilities in your current role?",
     "How well do you feel your role aligns with your job description?",
@@ -170,4 +170,5 @@ with st.form("chat_input_form", clear_on_submit=True):
             ]:
                 if key in st.session_state:
                     del st.session_state[key]
+
             st.rerun()
