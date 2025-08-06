@@ -8,8 +8,8 @@ import json
 import uuid
 from datetime import datetime
 import ast 
-from dotenv import load_dotenv
-load_dotenv() 
+# from dotenv import load_dotenv
+# load_dotenv() 
 
 # ---- Azure Blob Config ----
 AZURE_STORAGE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
@@ -172,4 +172,5 @@ with st.form("chat_input_form", clear_on_submit=True):
                     del st.session_state[key]
 
             st.rerun()
+
 
