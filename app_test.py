@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 import ast 
 # from dotenv import load_dotenv
-# load_dotenv() 
+# load_dotenv()
 
 # ---- Azure Blob Config ----
 AZURE_STORAGE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
@@ -41,7 +41,7 @@ def save_session_to_blob(session_state):
     return filename
 
 # ---- OpenAI Config ----
-# os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
+
 ROLE_CLARITY_QUESTION_BANK = [
     "Can you describe your primary responsibilities in your current role?",
     "How well do you feel your role aligns with your job description?",
@@ -95,6 +95,28 @@ Return exactly two lines:
     st.session_state.question_step += 1
     return reply
 
+def get_llm_intro_with_example():
+    prompt = """
+You are a workplace psychologist beginning a structured conversation about **role clarity**.
+
+Please begin by explaining what role clarity means in simple, inclusive language.  
+Then provide a thoughtful, open-minded example that doesn't assume the user's job, industry, or seniority.  
+Keep it warm, supportive, and reflective.
+
+Respond in exactly two short paragraphs:
+1. A definition of role clarity.
+2. An inclusive example.
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "system", "content": prompt}],
+        max_tokens=300,
+        temperature=0.7,
+    )
+
+    return response.choices[0].message.content.strip()
+
 # ---- App Title and Consent ----
 st.title("Role Clarity AI Agent Chatbot")
 st.markdown("Talk to a virtual workplace psychologist about your experience of role clarity.")
@@ -116,6 +138,9 @@ if not st.session_state.consent_given:
             st.session_state.saved_to_blob = False
             st.session_state.question_step = 1
             st.session_state.conversation.append(("Mibo", "Hi, I’m your virtual workplace psychologist. Let’s begin."))
+            with st.spinner("Preparing a brief intro about role clarity..."):
+                intro_text = get_llm_intro_with_example()
+                st.session_state.conversation.append(("Mibo", intro_text))
             with st.spinner("Loading your first question..."):
                 first_q = get_llm_followup_question(st.session_state.conversation, "")
                 st.session_state.conversation.append(("Mibo", first_q))
@@ -170,7 +195,4 @@ with st.form("chat_input_form", clear_on_submit=True):
             ]:
                 if key in st.session_state:
                     del st.session_state[key]
-
             st.rerun()
-
-
